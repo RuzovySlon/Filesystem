@@ -32,7 +32,7 @@ class Structure
 				->fetch();
 	}
 
-	public function insertNode($storage, $newNodeRelativePath, $targetNodePath = NULL, $mode = Tree::MODE_UNDER)
+	public function insertNode($storage, $newNodeRelativePath, $targetNodePath = NULL)
 	{
 		// sanitize paths
 		$targetNodePath = $this->sanitizePath($targetNodePath);
@@ -51,7 +51,7 @@ class Structure
 
 		// insert
 		if (!$this->hasNode($newNodePath)) {
-			$this->tree->insertNode($targetNodePathHash, $newNodePathHash, $mode);
+			$this->tree->insertNode($targetNodePathHash, $newNodePathHash, Tree::MODE_UNDER);
 			$this->database->update()
 				->set('path', $newNodePath)
 				->set('storage', $storage)
@@ -61,7 +61,7 @@ class Structure
 
 		// recursion
 		if (count($nodeTree) > 0) {
-			$this->insertNode($storage, implode("/", $nodeTree), $newNodePath, $mode);
+			$this->insertNode($storage, implode("/", $nodeTree), $newNodePath, Tree::MODE_UNDER);
 		}
 	}
 
@@ -89,9 +89,7 @@ class Structure
 	 */
 	protected function sanitizePath($path)
 	{
-		$path = str_replace('//', '/', $path);
-		$path = trim($path, "/");
-		return '/' . $path;
+		return PathHelper::sanitize($path);
 	}
 
 }
