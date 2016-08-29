@@ -3,16 +3,18 @@
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem as Filesystem2;
 use League\Flysystem\MountManager;
+use RuzovySlon\Filesystem\Database;
 use RuzovySlon\Filesystem\Filesystem;
+use RuzovySlon\Filesystem\Structure;
 
 class FilesystemCest
 {
 
 	/**
 	 *
-	 * @var MountManager
+	 * @var Filesystem
 	 */
-	private $flysystem;
+	private $filesystem;
 
 	public function _before(UnitTester $I)
 	{
@@ -22,7 +24,21 @@ class FilesystemCest
 		$filesystems = [
 			'local' => $memoryFilesystem,
 		];
-		$this->flysystem = new MountManager($filesystems);
+		$flysystem = new MountManager($filesystems);
+
+		$pdo = new PDO('mysql:dbname=rsfilesystem;host=localhost', 'rsfilesystem');
+		$table = 'filesystem';
+		$database = new Database($pdo, $table);
+
+		$config = [
+			'table' => 'filesystem',
+			'id' => 'hash',
+			'prt' => 'parent',
+		];
+		$tree = new Echo511\TreeTraversal\Tree($config, $pdo);
+		$structure = new Structure($database, $tree);
+
+		$this->filesystem = new Filesystem($flysystem, $structure);
 	}
 
 	public function _after(UnitTester $I)
@@ -32,42 +48,23 @@ class FilesystemCest
 
 	public function testPut(UnitTester $I)
 	{
-		$structure = Mockery::mock('\RuzovySlon\Filesystem\Structure')
-			->shouldReceive('insertNode')
-			->once()
-			->with('local', '/root/1st/file.txt')
-			->andReturn(TRUE)
-			->shouldReceive('hasNode')
-			->once()
-			->with('/root/1st/file.txt')
-			->andReturn(TRUE)
-			->getMock();
-		$filesystem = new Filesystem($this->flysystem, $structure);
-		$filesystem->put('local://root/1st/file.txt', 'ANDROMEDA');
+		$this->filesystem->put('local://root/1st/file.txt', 'ANDROMEDA');
 		$I->seeFileFound($this->getFilesystemFilePath('/root/1st/file.txt'));
 	}
 
 	public function testHas(UnitTester $I)
 	{
-		$structure = Mockery::mock('\RuzovySlon\Filesystem\Structure')
-			->shouldReceive('hasNode')
-			->once()
-			->with('/root')
-			->andReturn(TRUE)
-			->getMock();
-		$filesystem = new Filesystem($this->flysystem, $structure);
-		$has = $filesystem->has('/root');
+		$this->filesystem->put('local://root/1st/file.txt', 'ANDROMEDA');
+		$has = $this->filesystem->has('/root');
 		$I->assertTrue($has);
 
-		$structure = Mockery::mock('\RuzovySlon\Filesystem\Structure')
-			->shouldReceive('hasNode')
-			->once()
-			->with('/root')
-			->andReturn(FALSE)
-			->getMock();
-		$filesystem = new Filesystem($this->flysystem, $structure);
-		$has = $filesystem->has('/root');
+		$has = $this->filesystem->has('/roots');
 		$I->assertFalse($has);
+	}
+
+	public function testRead(UnitTester $I)
+	{
+		
 	}
 
 	protected function getFilesystemFilePath($path)
