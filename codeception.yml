@@ -15,7 +15,8 @@ extensions:
 modules:
     config:
         Db:
-            dsn: ''
-            user: ''
+            dsn: 'mysql:dbname=rsfilesystem;host=localhost'
+            user: 'rsfilesystem'
             password: ''
             dump: tests/_data/dump.sql
+            cleanup: true
