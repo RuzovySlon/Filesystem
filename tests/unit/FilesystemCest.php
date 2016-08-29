@@ -47,6 +47,29 @@ class FilesystemCest
 		$I->seeFileFound($this->getFilesystemFilePath('/root/1st/file.txt'));
 	}
 
+	public function testHas(UnitTester $I)
+	{
+		$structure = Mockery::mock('\RuzovySlon\Filesystem\Structure')
+			->shouldReceive('hasNode')
+			->once()
+			->with('/root')
+			->andReturn(TRUE)
+			->getMock();
+		$filesystem = new Filesystem($this->flysystem, $structure);
+		$has = $filesystem->has('/root');
+		$I->assertTrue($has);
+
+		$structure = Mockery::mock('\RuzovySlon\Filesystem\Structure')
+			->shouldReceive('hasNode')
+			->once()
+			->with('/root')
+			->andReturn(FALSE)
+			->getMock();
+		$filesystem = new Filesystem($this->flysystem, $structure);
+		$has = $filesystem->has('/root');
+		$I->assertFalse($has);
+	}
+
 	protected function getFilesystemFilePath($path)
 	{
 		return __DIR__ . '/../_output/filesystem' . $path;

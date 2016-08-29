@@ -38,7 +38,9 @@ class Filesystem
 
 	public function has($path)
 	{
+		$path = PathHelper::sanitize($path);
 		
+		return $this->structure->hasNode($path);
 	}
 
 	public function query(IQueryObject $queryObject)
