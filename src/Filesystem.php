@@ -2,7 +2,6 @@
 
 namespace RuzovySlon\Filesystem;
 
-use Echo511\TreeTraversal\Tree;
 use League\Flysystem\MountManager;
 
 class Filesystem
@@ -31,13 +30,15 @@ class Filesystem
 		
 	}
 
-	public function delete($path)
+	public function delete($path, $storage = NULL)
 	{
 		$path = PathHelper::sanitize($path);
 
-		$node = $this->structure->getNode($path);
-
-		$pathWithStorage = $node['storage'] . ':/' . $path;
+		if (is_null($storage)) {
+			$node = $this->structure->getNode($path);
+			$storage = $node['storage'];
+		}
+		$pathWithStorage = $storage . ':/' . $path;
 
 		$status = $this->flysystem->deleteDir($pathWithStorage);
 		if (!$status) {
@@ -58,18 +59,36 @@ class Filesystem
 		return $this->structure->hasNode($path);
 	}
 
-	public function query(IQueryObject $queryObject)
+	public function query(QueryObject $queryObject)
 	{
-		
+		$rows = $queryObject->query($this->structure->getFluent())->fetchAll();
+
+		$files = [];
+		foreach ($rows as $row) {
+			$node = [
+				'hash' => $row['hash'],
+				'path' => $row['path'],
+				'lft' => $row['lft'],
+				'rgt' => $row['rgt'],
+				'dpt' => $row['dpt'],
+				'parent' => $row['parent'],
+				'storage' => $row['storage'],
+			];
+			$files[] = new File($row['path'], $node, $this);
+		}
+
+		return new Collection($files);
 	}
 
-	public function read($path)
+	public function read($path, $storage = NULL)
 	{
 		$path = PathHelper::sanitize($path);
 
-		$node = $this->structure->getNode($path);
-
-		$pathWithStorage = $node['storage'] . ':/' . $path;
+		if (is_null($storage)) {
+			$node = $this->structure->getNode($path);
+			$storage = $node['storage'];
+		}
+		$pathWithStorage = $storage . ':/' . $path;
 		return $this->flysystem->read($pathWithStorage);
 	}
 

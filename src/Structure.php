@@ -27,9 +27,15 @@ class Structure
 
 	public function getNode($path)
 	{
-		return $this->database->selectNode()
-				->where('path', $path)
-				->fetch();
+		$node = $this->database->selectNode()
+			->where('path', $path)
+			->fetch();
+
+		if (!$node) {
+			throw new \RuntimeException("Node $path could not be fetched!");
+		}
+
+		return $node;
 	}
 
 	public function insertNode($storage, $newNodeRelativePath, $targetNodePath = NULL)
@@ -79,6 +85,11 @@ class Structure
 		return $this->database->table()
 				->where('hash', $pathHash)
 				->count() > 0;
+	}
+
+	public function getFluent()
+	{
+		return $this->database->getFluent();
 	}
 
 	/**

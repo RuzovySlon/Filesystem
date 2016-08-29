@@ -21,6 +21,11 @@ class Database
 		$this->table = $table;
 	}
 
+	public function getFluent()
+	{
+		return $this->fluentPdo;
+	}
+
 	public function table()
 	{
 		return $this->fluentPdo->from($this->table);
