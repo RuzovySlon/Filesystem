@@ -19,14 +19,21 @@ class File
 
 	/**
 	 *
+	 * @var array
+	 */
+	private $row;
+
+	/**
+	 *
 	 * @var Filesystem
 	 */
 	private $filesystem;
 
-	function __construct($path, $node, Filesystem $filesystem)
+	function __construct($path, $node, $row, Filesystem $filesystem)
 	{
 		$this->path = PathHelper::sanitize($path);
 		$this->node = $node;
+		$this->row = $row;
 		$this->filesystem = $filesystem;
 	}
 
@@ -49,6 +56,11 @@ class File
 	public function delete()
 	{
 		$this->filesystem->delete($this->path, $this->node['storage']);
+	}
+
+	public function getRow()
+	{
+		return $this->row;
 	}
 
 }

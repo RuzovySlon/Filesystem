@@ -74,7 +74,7 @@ class Filesystem
 				'parent' => $row['parent'],
 				'storage' => $row['storage'],
 			];
-			$files[] = new File($row['path'], $node, $this);
+			$files[] = new File($row['path'], $node, $row, $this);
 		}
 
 		return new Collection($files);

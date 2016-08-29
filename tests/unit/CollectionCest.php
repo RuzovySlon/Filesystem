@@ -18,6 +18,12 @@ class CollectionCest
 	 */
 	private $filesystem;
 
+	/**
+	 *
+	 * @var FluentPDO
+	 */
+	private $fluentPdo;
+
 	public function _before(UnitTester $I)
 	{
 		$I->deleteDir($this->getFilesystemFilePath(''));
@@ -41,6 +47,7 @@ class CollectionCest
 		$structure = new Structure($database, $tree);
 
 		$this->filesystem = new Filesystem($flysystem, $structure);
+		$this->fluentPdo = new FluentPDO($pdo);
 	}
 
 	public function _after(UnitTester $I)
@@ -53,6 +60,17 @@ class CollectionCest
 		$this->filesystem->put('local://root/1st/2nd/3rd/file.txt', 'ANDROMEDA');
 		$this->filesystem->put('local://root/1st/2nd/3rd/4th/file.txt', 'ORPHEUS');
 		$this->filesystem->put('local://root/1st/2nd/3rd/4th/5th/file.txt', 'BELZEBUB');
+
+		$this->fluentPdo->insertInto('options', [
+			[
+				'filesystem_hash' => md5('/root/1st/2nd/3rd/file.txt'),
+				'description' => 'ANDROMEDA_DESCRIPTION',
+			],
+			[
+				'filesystem_hash' => md5('/root/1st/2nd/3rd/4th/5th/file.txt'),
+				'description' => 'BELZEBUB_DESCRIPTION',
+			]
+		])->execute();
 
 		$collection = $this->filesystem->query(new MyQuery());
 		$I->assertInstanceOf('RuzovySlon\Filesystem\Collection', $collection);
@@ -69,6 +87,8 @@ class CollectionCest
 			$I->assertEquals($path, $file->getPath());
 			$I->assertEquals($file->read(), $this->filesystem->read($file->getPath()));
 		}
+
+		$I->assertEquals('ANDROMEDA_DESCRIPTION', $collection['/root/1st/2nd/3rd/file.txt']->getRow()['description']);
 	}
 
 	protected function getFilesystemFilePath($path)
@@ -81,9 +101,11 @@ class CollectionCest
 class MyQuery extends QueryObject
 {
 
-	public function query(\FluentPDO $fluentPdo)
+	public function query(FluentPDO $fluentPdo)
 	{
-		return $fluentPdo->from('filesystem');
+		return $fluentPdo->from('filesystem')
+			->select("filesystem.*, options.*")
+			->leftJoin("options ON filesystem.hash = options.filesystem_hash");
 	}
 
 }
