@@ -39,7 +39,7 @@ class Filesystem
 	public function has($path)
 	{
 		$path = PathHelper::sanitize($path);
-		
+
 		return $this->structure->hasNode($path);
 	}
 
@@ -50,7 +50,12 @@ class Filesystem
 
 	public function read($path)
 	{
-		
+		$path = PathHelper::sanitize($path);
+
+		$node = $this->structure->getNode($path);
+
+		$pathWithStorage = $node['storage'] . ':/' . $path;
+		return $this->flysystem->read($pathWithStorage);
 	}
 
 	public function rename($path, $name)

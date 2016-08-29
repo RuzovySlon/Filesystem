@@ -64,7 +64,9 @@ class FilesystemCest
 
 	public function testRead(UnitTester $I)
 	{
-		
+		$this->filesystem->put('local://root/1st/file.txt', 'ANDROMEDA');
+		$contents = $this->filesystem->read('/root/1st/file.txt');
+		$I->assertEquals('ANDROMEDA', $contents);
 	}
 
 	protected function getFilesystemFilePath($path)

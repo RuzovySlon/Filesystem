@@ -30,7 +30,7 @@ class Database
 	{
 		return $this->table()
 				->select(null)
-				->select('id, lft, rgt, dpt, prt, storage, name, path');
+				->select('hash, path, lft, rgt, dpt, parent, storage');
 	}
 
 	public function update()
