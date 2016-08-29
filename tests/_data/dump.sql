@@ -16,8 +16,8 @@ CREATE TABLE `filesystem` (
   `storage` varchar(255) COLLATE utf8_czech_ci NOT NULL COMMENT 'Storage',
   UNIQUE KEY `hsh` (`hash`),
   KEY `prt` (`parent`),
-  CONSTRAINT `filesystem_ibfk_1` FOREIGN KEY (`parent`) REFERENCES `filesystem` (`hash`) ON UPDATE CASCADE
+  CONSTRAINT `filesystem_ibfk_2` FOREIGN KEY (`parent`) REFERENCES `filesystem` (`hash`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
--- 2016-08-29 13:29:24
+-- 2016-08-29 14:34:02

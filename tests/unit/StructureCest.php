@@ -233,7 +233,7 @@ class StructureCest
 		);
 		$I->assertEquals($expected, $this->dumpStructure());
 	}
-	
+
 	public function testHasNode(UnitTester $I)
 	{
 		$this->insertDummy();
@@ -241,6 +241,33 @@ class StructureCest
 		$I->assertTrue($this->structure->hasNode('root/'));
 		$I->assertTrue($this->structure->hasNode('/root'));
 		$I->assertTrue($this->structure->hasNode('/root/'));
+	}
+
+	public function testDeleteNode(UnitTester $I)
+	{
+		$this->insertDummy();
+		$this->structure->deleteNode('/root/1st/2nd');
+		$expected = array(
+			0 => array(
+				'hash' => '887904812217cca9bc2b9adb875daf42',
+				'path' => '/root',
+				'lft' => '1',
+				'rgt' => '4',
+				'dpt' => '0',
+				'parent' => null,
+				'storage' => 'local',
+			),
+			1 => array(
+				'hash' => '6e9d270a8fdacb7e219531c991031f18',
+				'path' => '/root/1st',
+				'lft' => '2',
+				'rgt' => '3',
+				'dpt' => '1',
+				'parent' => '887904812217cca9bc2b9adb875daf42',
+				'storage' => 'local',
+			),
+		);
+		$I->assertEquals($expected, $this->dumpStructure());
 	}
 
 	protected function dumpStructure()

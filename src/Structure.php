@@ -65,6 +65,13 @@ class Structure
 		}
 	}
 
+	public function deleteNode($path)
+	{
+		$path = $this->sanitizePath($path);
+		$pathHash = md5($path);
+		$this->tree->deleteNode($pathHash);
+	}
+
 	public function hasNode($path)
 	{
 		$path = $this->sanitizePath($path);
@@ -74,21 +81,9 @@ class Structure
 				->count() > 0;
 	}
 
-	public function updateNode($nodePath, $storage)
-	{
-		
-	}
-
-	protected function fluent()
-	{
-		return $this->fluentPdo
-				->from($table)
-				->select($column);
-	}
-
 	/**
 	 * Sanitize path so that it starts with a slash and has no ending slash.
-	 * Eg.: asd/fefef/ -> /asd/fefef
+	 * Eg.: asd//fefef/ -> /asd/fefef
 	 * @param string $path
 	 * @return string
 	 */
