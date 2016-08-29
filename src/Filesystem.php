@@ -33,7 +33,22 @@ class Filesystem
 
 	public function delete($path)
 	{
-		
+		$path = PathHelper::sanitize($path);
+
+		$node = $this->structure->getNode($path);
+
+		$pathWithStorage = $node['storage'] . ':/' . $path;
+
+		$status = $this->flysystem->deleteDir($pathWithStorage);
+		if (!$status) {
+			$status = $this->flysystem->delete($pathWithStorage);
+		}
+
+		if ($status) {
+			$this->structure->deleteNode($path);
+		}
+
+		return FALSE;
 	}
 
 	public function has($path)

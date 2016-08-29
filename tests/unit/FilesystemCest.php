@@ -69,6 +69,35 @@ class FilesystemCest
 		$I->assertEquals('ANDROMEDA', $contents);
 	}
 
+	public function testDelete(UnitTester $I)
+	{
+		$this->filesystem->put('local://root/1st/file.txt', 'ANDROMEDA');
+		$this->filesystem->put('local://root/1st/under/file.txt', 'ORPHEUS');
+		$this->filesystem->put('local://root/1st/under/underworld/file.txt', 'BELZEBUB');
+		$I->seeFileFound($this->getFilesystemFilePath('/root/1st/file.txt'));
+		$I->seeFileFound($this->getFilesystemFilePath('/root/1st/under/file.txt'));
+		$I->seeFileFound($this->getFilesystemFilePath('/root/1st/under/underworld/file.txt'));
+		$I->assertTrue($this->filesystem->has('/root/1st/file.txt'));
+		$I->assertTrue($this->filesystem->has('/root/1st/under/file.txt'));
+		$I->assertTrue($this->filesystem->has('/root/1st/under/underworld/file.txt'));
+
+		// delete belzebub
+		$this->filesystem->delete('/root/1st/under/underworld/file.txt');
+		$I->cantSeeFileFound($this->getFilesystemFilePath('/root/1st/under/underworld/file.txt'));
+		$I->assertFalse($this->filesystem->has('/root/1st/under/underworld/file.txt'));
+
+		// delete orpheus via parent directory
+		$this->filesystem->delete('/root/1st/under');
+		$I->cantSeeFileFound($this->getFilesystemFilePath('/root/1st/under'));
+		$I->cantSeeFileFound($this->getFilesystemFilePath('/root/1st/under/file.txt'));
+		$I->assertFalse($this->filesystem->has('/root/1st/under/file.txt'));
+
+		// delete root
+		$this->filesystem->delete('/root');
+		$I->cantSeeFileFound($this->getFilesystemFilePath('/root'));
+		$I->assertFalse($this->filesystem->has('/root'));
+	}
+
 	protected function getFilesystemFilePath($path)
 	{
 		return __DIR__ . '/../_output/filesystem' . $path;
