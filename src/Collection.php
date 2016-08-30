@@ -4,14 +4,17 @@ namespace RuzovySlon\Filesystem;
 
 use ArrayObject;
 
+/**
+ * @author Nikolas Tsiongas <ntsiongas@gmail.com>
+ */
 class Collection extends ArrayObject
 {
 
-	public function __construct($files)
-	{
-		parent::__construct($files);
-	}
-
+	/**
+	 * Does collection contain path?
+	 * @param string $path
+	 * @return bool
+	 */
 	public function has($path)
 	{
 		$path = PathHelper::sanitize($path);

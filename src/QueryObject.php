@@ -5,6 +5,9 @@ namespace RuzovySlon\Filesystem;
 use FluentPDO;
 use SelectQuery;
 
+/**
+ * @author Nikolas Tsiongas <ntsiongas@gmail.com>
+ */
 abstract class QueryObject
 {
 

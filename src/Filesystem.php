@@ -4,54 +4,33 @@ namespace RuzovySlon\Filesystem;
 
 use League\Flysystem\MountManager;
 
+/**
+ * @author Nikolas Tsiongas <ntsiongas@gmail.com>
+ */
 class Filesystem
 {
 
 	/**
-	 *
 	 * @var MountManager
 	 */
 	protected $flysystem;
 
 	/**
-	 *
 	 * @var Structure
 	 */
 	protected $structure;
 
-	function __construct(MountManager $flysystem, Structure $structure)
+	public function __construct(MountManager $flysystem, Structure $structure)
 	{
 		$this->flysystem = $flysystem;
 		$this->structure = $structure;
 	}
 
-	public function copy($fromNodePath, $targetNodePath, $newNodeFilesystem = NULL, $newNodeName = NULL)
-	{
-		
-	}
-
-	public function delete($path, $storage = NULL)
-	{
-		$path = PathHelper::sanitize($path);
-
-		if (is_null($storage)) {
-			$node = $this->structure->getNode($path);
-			$storage = $node['storage'];
-		}
-		$pathWithStorage = $storage . ':/' . $path;
-
-		$status = $this->flysystem->deleteDir($pathWithStorage);
-		if (!$status) {
-			$status = $this->flysystem->delete($pathWithStorage);
-		}
-
-		if ($status) {
-			$this->structure->deleteNode($path);
-		}
-
-		return FALSE;
-	}
-
+	/**
+	 * Does structure contain node with path?
+	 * @param string $path
+	 * @return bool
+	 */
 	public function has($path)
 	{
 		$path = PathHelper::sanitize($path);
@@ -59,6 +38,11 @@ class Filesystem
 		return $this->structure->hasNode($path);
 	}
 
+	/**
+	 * Query for files with custom SQL.
+	 * @param QueryObject $queryObject
+	 * @return Collection
+	 */
 	public function query(QueryObject $queryObject)
 	{
 		$rows = $queryObject->fetchAll($this->structure->getFluent());
@@ -80,6 +64,12 @@ class Filesystem
 		return new Collection($files);
 	}
 
+	/**
+	 * Read file contents.
+	 * @param string $path
+	 * @param string $storage Optimalization: Eg. Already known after query.
+	 * @return string|false
+	 */
 	public function read($path, $storage = NULL)
 	{
 		$path = PathHelper::sanitize($path);
@@ -92,16 +82,12 @@ class Filesystem
 		return $this->flysystem->read($pathWithStorage);
 	}
 
-	public function rename($path, $name)
-	{
-		
-	}
-
-	public function url($path)
-	{
-		
-	}
-
+	/**
+	 * Create or update file.
+	 * @param string $pathWithStorage Eg.: local://node/node/file.txt
+	 * @param string $contents
+	 * @return boolean
+	 */
 	public function put($pathWithStorage, $contents)
 	{
 		list($storage, $path) = explode('://', $pathWithStorage, 2);
@@ -111,6 +97,34 @@ class Filesystem
 		if ($status) {
 			$this->structure->insertNode($storage, $path);
 			return $this->structure->hasNode($path);
+		}
+
+		return FALSE;
+	}
+
+	/**
+	 * Delete file.
+	 * @param string $path
+	 * @param string $storage Optimalization: If already known. (Eg.: from query())
+	 * @return boolean
+	 */
+	public function delete($path, $storage = NULL)
+	{
+		$path = PathHelper::sanitize($path);
+
+		if (is_null($storage)) {
+			$node = $this->structure->getNode($path);
+			$storage = $node['storage'];
+		}
+		$pathWithStorage = $storage . ':/' . $path;
+
+		$status = $this->flysystem->deleteDir($pathWithStorage);
+		if (!$status) {
+			$status = $this->flysystem->delete($pathWithStorage);
+		}
+
+		if ($status) {
+			$this->structure->deleteNode($path);
 		}
 
 		return FALSE;

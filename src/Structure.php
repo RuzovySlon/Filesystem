@@ -3,7 +3,12 @@
 namespace RuzovySlon\Filesystem;
 
 use Echo511\TreeTraversal\Tree;
+use FluentPDO;
+use RuntimeException;
 
+/**
+ * @author Nikolas Tsiongas <ntsiongas@gmail.com>
+ */
 class Structure
 {
 
@@ -25,6 +30,12 @@ class Structure
 		$this->tree = $tree;
 	}
 
+	/**
+	 * Return node information.
+	 * @param string $path
+	 * @return array
+	 * @throws RuntimeException
+	 */
 	public function getNode($path)
 	{
 		$node = $this->database->selectNode()
@@ -32,17 +43,23 @@ class Structure
 			->fetch();
 
 		if (!$node) {
-			throw new \RuntimeException("Node $path could not be fetched!");
+			throw new RuntimeException("Node $path could not be fetched!");
 		}
 
 		return $node;
 	}
 
+	/**
+	 * Insert node under target and set storage designation.
+	 * @param string $storage
+	 * @param string $newNodeRelativePath
+	 * @param string $targetNodePath
+	 */
 	public function insertNode($storage, $newNodeRelativePath, $targetNodePath = NULL)
 	{
 		// sanitize paths
-		$targetNodePath = $this->sanitizePath($targetNodePath);
-		$newNodeRelativePath = $this->sanitizePath($newNodeRelativePath);
+		$targetNodePath = PathHelper::sanitize($targetNodePath);
+		$newNodeRelativePath = PathHelper::sanitize($newNodeRelativePath);
 
 		// explode tree
 		$nodeTree = explode("/", trim($newNodeRelativePath, "/"));
@@ -51,7 +68,7 @@ class Structure
 		$nodeName = array_shift($nodeTree);
 
 		// compute paths and hashes
-		$newNodePath = $this->sanitizePath($targetNodePath . '/' . $nodeName);
+		$newNodePath = PathHelper::sanitize($targetNodePath . '/' . $nodeName);
 		$newNodePathHash = md5($newNodePath);
 		$targetNodePathHash = md5($targetNodePath);
 
@@ -71,36 +88,38 @@ class Structure
 		}
 	}
 
+	/**
+	 * Delete node.
+	 * @param string $path
+	 */
 	public function deleteNode($path)
 	{
-		$path = $this->sanitizePath($path);
+		$path = PathHelper::sanitize($path);
 		$pathHash = md5($path);
 		$this->tree->deleteNode($pathHash);
 	}
 
+	/**
+	 * Does structure contain path?
+	 * @param string $path
+	 * @return bool
+	 */
 	public function hasNode($path)
 	{
-		$path = $this->sanitizePath($path);
+		$path = PathHelper::sanitize($path);
 		$pathHash = md5($path);
 		return $this->database->table()
 				->where('hash', $pathHash)
 				->count() > 0;
 	}
 
+	/**
+	 * Get FluentPDO
+	 * @return FluentPDO
+	 */
 	public function getFluent()
 	{
 		return $this->database->getFluent();
-	}
-
-	/**
-	 * Sanitize path so that it starts with a slash and has no ending slash.
-	 * Eg.: asd//fefef/ -> /asd/fefef
-	 * @param string $path
-	 * @return string
-	 */
-	protected function sanitizePath($path)
-	{
-		return PathHelper::sanitize($path);
 	}
 
 }
