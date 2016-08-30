@@ -7,19 +7,9 @@ use ArrayObject;
 class Collection extends ArrayObject
 {
 
-	/**
-	 *
-	 * @var File[]
-	 */
-	protected $files = [];
-
-	function __construct($files)
+	public function __construct($files)
 	{
-		$items = [];
-		foreach ($files as $file) {
-			$items[$file->getPath()] = $file;
-		}
-		parent::__construct($items);
+		parent::__construct($files);
 	}
 
 	public function has($path)

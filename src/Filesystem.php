@@ -61,10 +61,10 @@ class Filesystem
 
 	public function query(QueryObject $queryObject)
 	{
-		$rows = $queryObject->query($this->structure->getFluent())->fetchAll();
+		$rows = $queryObject->fetchAll($this->structure->getFluent());
 
 		$files = [];
-		foreach ($rows as $row) {
+		foreach ($rows as $path => $row) {
 			$node = [
 				'hash' => $row['hash'],
 				'path' => $row['path'],
@@ -74,7 +74,7 @@ class Filesystem
 				'parent' => $row['parent'],
 				'storage' => $row['storage'],
 			];
-			$files[] = new File($row['path'], $node, $row, $this);
+			$files[$path] = new File($path, $node, $row, $this);
 		}
 
 		return new Collection($files);

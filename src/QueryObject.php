@@ -9,7 +9,17 @@ abstract class QueryObject
 {
 
 	/**
+	 * 
+	 * @param FluentPDO $fluentPdo
+	 * @return array [path => [row]]
+	 */
+	public function fetchAll(FluentPDO $fluentPdo)
+	{
+		return $this->query($fluentPdo)->fetchAll('path');
+	}
+
+	/**
 	 * @return SelectQuery
 	 */
-	abstract public function query(FluentPDO $fluentPdo);
+	abstract protected function query(FluentPDO $fluentPdo);
 }

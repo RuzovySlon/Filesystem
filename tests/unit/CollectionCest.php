@@ -101,7 +101,7 @@ class CollectionCest
 class MyQuery extends QueryObject
 {
 
-	public function query(FluentPDO $fluentPdo)
+	protected function query(FluentPDO $fluentPdo)
 	{
 		return $fluentPdo->from('filesystem')
 			->select("filesystem.*, options.*")
