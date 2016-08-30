@@ -2,6 +2,7 @@
   "name": "ruzovyslon/filesystem",
   "type": "library",
   "require": {
+    "php": ">=5.4",
     "league/flysystem": "^1.0",
     "echo511/tree-traversal": "^0.1.0",
     "codeception/mockery-module": "^0.2.2"
