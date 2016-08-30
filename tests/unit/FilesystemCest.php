@@ -19,10 +19,14 @@ class FilesystemCest
 	public function _before(UnitTester $I)
 	{
 		$I->deleteDir($this->getFilesystemFilePath(''));
+		$I->deleteDir($this->getSecondFilesystemFilePath(''));
 		$memoryAdapter = new Local($this->getFilesystemFilePath(''));
 		$memoryFilesystem = new Filesystem2($memoryAdapter);
+		$secondAdapter = new Local($this->getSecondFilesystemFilePath(''));
+		$secondFilesystem = new Filesystem2($secondAdapter);
 		$filesystems = [
 			'local' => $memoryFilesystem,
+			'second' => $secondFilesystem,
 		];
 		$flysystem = new MountManager($filesystems);
 
@@ -44,12 +48,23 @@ class FilesystemCest
 	public function _after(UnitTester $I)
 	{
 		$I->deleteDir($this->getFilesystemFilePath(''));
+		$I->deleteDir($this->getSecondFilesystemFilePath(''));
 	}
 
 	public function testPut(UnitTester $I)
 	{
 		$this->filesystem->put('local://root/1st/file.txt', 'ANDROMEDA');
 		$I->seeFileFound($this->getFilesystemFilePath('/root/1st/file.txt'));
+		$I->openFile($this->getFilesystemFilePath('/root/1st/file.txt'));
+		$I->seeInThisFile('ANDROMEDA');
+		$I->assertEquals('ANDROMEDA', $this->filesystem->read('/root/1st/file.txt'));
+
+		$this->filesystem->put('second://root/1st/file.txt', 'RUFUS');
+		$I->cantSeeFileFound($this->getFilesystemFilePath('/root/1st/file.txt'));
+		$I->seeFileFound($this->getSecondFilesystemFilePath('/root/1st/file.txt'));
+		$I->openFile($this->getSecondFilesystemFilePath('/root/1st/file.txt'));
+		$I->seeInThisFile('RUFUS');
+		$I->assertEquals('RUFUS', $this->filesystem->read('/root/1st/file.txt'));
 	}
 
 	public function testHas(UnitTester $I)
@@ -101,6 +116,11 @@ class FilesystemCest
 	protected function getFilesystemFilePath($path)
 	{
 		return __DIR__ . '/../_output/filesystem' . $path;
+	}
+
+	protected function getSecondFilesystemFilePath($path)
+	{
+		return __DIR__ . '/../_output/second_filesystem' . $path;
 	}
 
 }

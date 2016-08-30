@@ -92,6 +92,11 @@ class Filesystem
 	{
 		list($storage, $path) = explode('://', $pathWithStorage, 2);
 		$path = PathHelper::sanitize($path);
+
+		if ($this->has($path)) {
+			$this->delete($path);
+		}
+
 		$status = $this->flysystem->put($pathWithStorage, $contents);
 
 		if ($status) {
