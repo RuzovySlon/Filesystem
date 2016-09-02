@@ -34,7 +34,7 @@ class CollectionCest
 		];
 		$flysystem = new MountManager($filesystems);
 
-		$pdo = new PDO('mysql:dbname=rsfilesystem;host=localhost', 'rsfilesystem');
+		$pdo = new PDO('mysql:dbname=rsfilesystem;host=mysql', 'rsfilesystem');
 		$table = 'filesystem';
 		$database = new Database($pdo, $table);
 

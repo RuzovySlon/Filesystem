@@ -30,7 +30,7 @@ class FilesystemCest
 		];
 		$flysystem = new MountManager($filesystems);
 
-		$pdo = new PDO('mysql:dbname=rsfilesystem;host=localhost', 'rsfilesystem');
+		$pdo = new PDO('mysql:dbname=rsfilesystem;host=mysql', 'rsfilesystem');
 		$table = 'filesystem';
 		$database = new Database($pdo, $table);
 
@@ -111,6 +111,25 @@ class FilesystemCest
 		$this->filesystem->delete('/root');
 		$I->cantSeeFileFound($this->getFilesystemFilePath('/root'));
 		$I->assertFalse($this->filesystem->has('/root'));
+	}
+
+	public function testRename(UnitTester $I)
+	{
+		$this->filesystem->put('local://root/file.txt', 'ANDROMEDA');
+		$I->seeFileFound($this->getFilesystemFilePath('/root/file.txt'));
+		$I->seeInDatabase('filesystem', [
+		    'path' => '/root/file.txt'
+		]);
+
+		$this->filesystem->rename('/root/file.txt', 'newfile.txt');
+		$I->cantSeeFileFound($this->getFilesystemFilePath('/root/file.txt'));
+		$I->seeFileFound($this->getFilesystemFilePath('/root/newfile.txt'));
+		$I->cantSeeInDatabase('filesystem', [
+		    'path' => '/root/file.txt'
+		]);
+		$I->seeInDatabase('filesystem', [
+		    'path' => '/root/newfile.txt'
+		]);
 	}
 
 	protected function getFilesystemFilePath($path)

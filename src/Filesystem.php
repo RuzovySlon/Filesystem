@@ -157,4 +157,30 @@ class Filesystem
 		return $this->structure->hasNode($path);
 	}
 
+	/**
+	 * Rename file.
+	 * @param string $path
+	 * @param string $newName Only the new name, NOT the whole path.
+	 * @param string $storage
+	 */
+	public function rename($path, $newName, $storage = NULL)
+	{
+		$path = PathHelper::sanitize($path);
+
+		if (is_null($storage)) {
+			$node = $this->structure->getNode($path);
+			$storage = $node['storage'];
+		}
+		$pathWithStorage = $storage . ':/' . $path;
+
+		$renamedPath = PathHelper::rename($path, $newName);
+		$renamedPathWithStorage = $storage . ':/' . $renamedPath;
+
+		$status = $this->flysystem->rename($pathWithStorage, $renamedPath);
+		if ($status) {
+			$this->structure->changePath($path, $renamedPath);
+		}
+
+	}
+
 }

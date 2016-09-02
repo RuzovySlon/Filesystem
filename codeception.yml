@@ -15,7 +15,7 @@ extensions:
 modules:
     config:
         Db:
-            dsn: 'mysql:dbname=rsfilesystem;host=localhost'
+            dsn: 'mysql:dbname=rsfilesystem;host=mysql'
             user: 'rsfilesystem'
             password: ''
             dump: tests/_data/dump.sql

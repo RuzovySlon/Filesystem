@@ -114,6 +114,29 @@ class Structure
 	}
 
 	/**
+	 * Forcefully updates path.
+	 * Does not provide structure checks. Eg. tree structure will be intact.
+	 * Use with caution!!
+	 * @param type $path
+	 * @param type $newPath
+	 */
+	public function changePath($path, $newPath)
+	{
+		$path = PathHelper::sanitize($path);
+		$newPath = PathHelper::sanitize($newPath);
+		$pathHash = md5($path);
+		$newPathHash = md5($newPath);
+
+		$this->database->update()
+			->set([
+			    'hash' => $newPathHash,
+			    'path' => $newPath,
+			])
+			->where('hash = ?', $pathHash)
+			->execute();
+	}
+
+	/**
 	 * Get FluentPDO
 	 * @return FluentPDO
 	 */

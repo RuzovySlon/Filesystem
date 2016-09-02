@@ -1,3 +1,7 @@
+addons:
+    hosts:
+        - mysql
+
 language: php
 
 php:
