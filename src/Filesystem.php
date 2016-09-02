@@ -2,6 +2,7 @@
 
 namespace RuzovySlon\Filesystem;
 
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\MountManager;
 
 /**
@@ -125,14 +126,18 @@ class Filesystem
 
 		$status = $this->flysystem->deleteDir($pathWithStorage);
 		if (!$status) {
-			$status = $this->flysystem->delete($pathWithStorage);
+			try {
+				$status = $this->flysystem->delete($pathWithStorage);
+			} catch (FileNotFoundException $ex) {
+				$status = FALSE;
+			}
 		}
 
 		if ($status) {
 			$this->structure->deleteNode($path);
 		}
 
-		return FALSE;
+		return $this->structure->hasNode($path);
 	}
 
 }
