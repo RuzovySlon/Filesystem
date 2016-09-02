@@ -64,6 +64,23 @@ class Filesystem
 		return new Collection($files);
 	}
 
+	public function getUrl($path, $storage = NULL)
+	{
+		$path = PathHelper::sanitize($path);
+
+		if (is_null($storage)) {
+			$node = $this->structure->getNode($path);
+			$storage = $node['storage'];
+		}
+		$pathWithStorage = $storage . ':/' . $path;
+
+		$filesystem = $this->flysystem->getFilesystem($storage);
+		$adapter = $filesystem->getAdapter();
+		if ($adapter instanceof Adapters\IUrlAware) {
+			return $adapter->getUrl($path);
+		}
+	}
+
 	/**
 	 * Read file contents.
 	 * @param string $path
