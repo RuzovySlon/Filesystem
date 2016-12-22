@@ -146,7 +146,7 @@ class Filesystem
 			try {
 				$status = $this->flysystem->delete($pathWithStorage);
 			} catch (FileNotFoundException $ex) {
-				$status = FALSE;
+				$status = TRUE;
 			}
 		}
 
