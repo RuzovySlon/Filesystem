@@ -10,7 +10,7 @@
   "require-dev": {
     "codeception/codeception": "^2.2"
   },
-  "license": "MIT License",
+  "license": "MIT",
   "authors": [
     {
       "name": "Nikolas Tsiongas",
